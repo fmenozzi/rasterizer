@@ -1,7 +1,7 @@
-CXX = g++ -std=c++11 -Wall -pedantic
+CPP = g++ -std=c++11 -Wall -pedantic
 
-CXX_DEBUG = @$(CXX) -g
-CXX_RELEASE = @$(CXX) -O2 -march=native
+CPP_DEBUG = @$(CPP) -g
+CPP_RELEASE = @$(CPP) -O2 -march=native
 
 SRC = src/*.cpp
 INC = -Iinclude
@@ -13,7 +13,7 @@ all: part1-gl clean
 part1:
 	@echo "Part 1"
 	@echo "Building..."
-	@$(CXX_RELEASE) $(INC) part1.cpp $(SRC) -o part1
+	@$(CPP_RELEASE) $(INC) part1.cpp $(SRC) -o part1
 	@echo "Rendering..."
 	@./part1
 	@echo "Done"
@@ -21,10 +21,10 @@ part1:
 part1-gl:
 	@echo "Part 1 using OpenGL"
 	@echo "Building..."
-	@$(CXX_RELEASE) $(INC) part1.cpp $(SRC) -o part1 $(GL_LFLAGS) -DUSE_OPENGL
+	@$(CPP_RELEASE) $(INC) part1.cpp $(SRC) -o part1 $(GL_LFLAGS) -DUSE_OPENGL
 	@echo "Rendering..."
 	@./part1
 	@echo "Done"
 
 clean:
-	@rm part1
+	@rm -f part1
