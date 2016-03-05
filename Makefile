@@ -15,7 +15,7 @@ unshaded:
 	@echo "Building..."
 	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main -DUNSHADED
 	@echo "Rendering..."
-	@./main
+	@./main &
 	@echo "Done"
 
 unshaded-gl:
@@ -23,7 +23,7 @@ unshaded-gl:
 	@echo "Building..."
 	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main $(GL_LFLAGS) -DUNSHADED -DUSE_OPENGL
 	@echo "Rendering..."
-	@./main
+	@./main &
 	@echo "Done"
 
 clean:

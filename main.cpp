@@ -9,6 +9,7 @@
 #include <Color.h>
 #include <Material.h>
 #include <Light.h>
+#include <Sphere.h>
 
 #include <iostream>
 
@@ -58,6 +59,15 @@ void draw(int x, int y, const Color& color) {
     buffer[x*NY + y] = color;
 }
 
+void rasterize(const Triangle& tri) {
+
+}
+
+void rasterize(const Sphere& sphere) {
+    for (const auto& triangle : sphere.triangles)
+        rasterize(triangle);
+}
+
 int main(int argc, char* argv[]) {
     constexpr float l = -0.1f;
     constexpr float r =  0.1f;
@@ -95,11 +105,8 @@ int main(int argc, char* argv[]) {
     // Final transform
     M = M_vp * M_persp * M_cam * M_mod;
 
-    // Material
-    Material mat(Color(0.0f, 1.0f, 0.0f), Color(0.0f, 0.5f, 0.0f), Color(0.5f, 0.5f, 0.5f), 32);
-
-    // Light
-    Light light(Eigen::Vector3f(-4, 4, -3), 1);
+    // Sphere
+    Sphere sphere(Material(Color(0.0f, 1.0f, 0.0f), Color(0.0f, 0.5f, 0.0f), Color(0.5f, 0.5f, 0.5f), 32));
 
     // Black buffer
     buffer = new Color[NX*NY];
@@ -114,6 +121,12 @@ int main(int argc, char* argv[]) {
         glutInitWindowSize(NX, NY);
         #if defined(UNSHADED)
             const char* window_name = "Part 1 (Unshaded)";
+        #elif defined(FLAT_SHADING)
+            const char* window_name = "Part 2 (Flat Shading)";
+        #elif defined(GOURAUD_SHADING)
+            const char* window_name = "Part 3 (Gouraud Shading)";
+        #elif defined(PHONG_SHADING)
+            const char* window_name = "Part 4 (Phong Shading)";
         #endif
         glutCreateWindow(window_name);
         glutDisplayFunc(gl_display);
@@ -123,6 +136,12 @@ int main(int argc, char* argv[]) {
         // Write buffer to image file
         #if defined(UNSHADED)
             const char* ppmpath = "images/part1-unshaded.ppm";
+        #elif defined(FLAT_SHADING)
+            const char* ppmpath = "images/part2-flat.ppm";
+        #elif defined(GOURAUD_SHADING)
+            const char* ppmpath = "images/part3-gouraud.ppm";
+        #elif defined(PHONG_SHADING)
+            const char* ppmpath = "images/part4-phong.ppm";
         #endif
         FILE* fp = fopen(ppmpath, "w");
         fprintf(fp, "P3\n");
