@@ -7,6 +7,8 @@
 #include <Eigen/Dense>
 
 #include <Color.h>
+#include <Material.h>
+#include <Light.h>
 
 #include <iostream>
 
@@ -57,11 +59,27 @@ void draw(int x, int y, const Color& color) {
 }
 
 int main(int argc, char* argv[]) {
-    // White buffer
+    constexpr float l = -0.1f;
+    constexpr float r =  0.1f;
+    constexpr float b = -0.1f;
+    constexpr float t =  0.1f;
+    constexpr float n = -0.1f;
+    constexpr float f =  0.1f;
+
+    // Create transformation matrix
+    Eigen::Matrix4f M, M_cam, M_persp, M_vp;
+
+    // Material
+    Material mat(Color(0.0f, 1.0f, 0.0f), Color(0.0f, 0.5f, 0.0f), Color(0.5f, 0.5f, 0.5f), 32);
+
+    // Light
+    Light light(Eigen::Vector3f(-4, 4, -3), 1);
+
+    // Black buffer
     buffer = new Color[NX*NY];
     for (int x = 0; x < NX; x++)
         for (int y = 0; y < NY; y++)
-            draw(x, y, Color(1,1,1));
+            draw(x, y, Color(0,0,0));
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
