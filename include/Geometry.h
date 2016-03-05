@@ -3,17 +3,18 @@
 
 #include <vector>
 
+#include <Eigen/Dense>
+
 #include <Triangle.h>
 #include <Material.h>
 
 struct Geometry {
     std::vector<Triangle> triangles; 
     Material mat;
+    Eigen::Matrix4f transform;
 
-    Geometry(Triangle* tris, int count, Material _mat) : mat(_mat) {
+    Geometry(Material _mat) : mat(_mat) {
         triangles = std::vector<Triangle>();
-        for (int i = 0; i < count; i++)
-            triangles.push_back(tris[i]);
     }
 };
 
