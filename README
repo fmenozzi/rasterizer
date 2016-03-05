@@ -1,0 +1,16 @@
+COMP 770 - PA2
+==============
+
+This assignment has four parts, as described in pa2.pdf:
+    * Rasterization
+    * Rasterization + Flat Shading
+    * Rasterization + Gouraud Shading
+    * Rasterization + Phong Shading
+
+I have provided a Makefile which can be used to build and render images either
+individually or all at once. Note that I have only tested this code with g++ 4.8
+on Ubuntu 14.04.
+
+There are two ways to render the images:
+    1. Using OpenGL and GLUT
+    2. Writing .ppm files to disk
