@@ -68,6 +68,19 @@ int main(int argc, char* argv[]) {
 
     // Create transformation matrix
     Eigen::Matrix4f M, M_cam, M_persp, M_vp;
+    M_cam <<   1.0f,            0.0f,           0.0f,           0.0f,
+               0.0f,            1.0f,           0.0f,           0.0f,
+               0.0f,            0.0f,           1.0f,           0.0f,
+               0.0f,            0.0f,           0.0f,           1.0f;
+    M_persp << 2.0f*n/(r-l),    0.0f,           (l+r)/(l-r),    0.0f,
+               0.0f,            2.0f*n/(t-b),   (b+t)/(b-t),    0.0f,
+               0.0f,            0.0f,           (f+n)/(n-f),    2.0f*f*n/(f-n),
+               0.0f,            0.0f,           1.0f,           0.0f;
+    M_vp <<    NX/2.0f,         0.0f,           0.0f,           (NX-1)/2.0f,
+               0.0f,            NY/2.0f,        0.0f,           (NY-1)/2.0f,
+               0.0f,            0.0f,           1.0f,           0.0f,
+               0.0f,            0.0f,           0.0f,           1.0f;
+    M = M_vp * M_persp * M_cam;
 
     // Material
     Material mat(Color(0.0f, 1.0f, 0.0f), Color(0.0f, 0.5f, 0.0f), Color(0.5f, 0.5f, 0.5f), 32);
