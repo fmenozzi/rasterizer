@@ -66,21 +66,34 @@ int main(int argc, char* argv[]) {
     constexpr float n = -0.1f;
     constexpr float f =  0.1f;
 
-    // Create transformation matrix
-    Eigen::Matrix4f M, M_cam, M_persp, M_vp;
+    Eigen::Matrix4f M, M_mod, M_cam, M_persp, M_vp;
+
+    // Modeling transform (i.e. scale by two and translate to (0,0,-7))
+    M_mod <<   2.0f,            0.0f,           0.0f,           0.0f,
+               0.0f,            2.0f,           0.0f,           0.0f,
+               0.0f,            0.0f,           2.0f,          -7.0f,
+               0.0f,            0.0f,           0.0f,           1.0f;
+
+    // Camera transform
     M_cam <<   1.0f,            0.0f,           0.0f,           0.0f,
                0.0f,            1.0f,           0.0f,           0.0f,
                0.0f,            0.0f,           1.0f,           0.0f,
                0.0f,            0.0f,           0.0f,           1.0f;
+
+    // Perspective transform
     M_persp << 2.0f*n/(r-l),    0.0f,           (l+r)/(l-r),    0.0f,
                0.0f,            2.0f*n/(t-b),   (b+t)/(b-t),    0.0f,
                0.0f,            0.0f,           (f+n)/(n-f),    2.0f*f*n/(f-n),
                0.0f,            0.0f,           1.0f,           0.0f;
+
+    // Viewport transform
     M_vp <<    NX/2.0f,         0.0f,           0.0f,           (NX-1)/2.0f,
                0.0f,            NY/2.0f,        0.0f,           (NY-1)/2.0f,
                0.0f,            0.0f,           1.0f,           0.0f,
                0.0f,            0.0f,           0.0f,           1.0f;
-    M = M_vp * M_persp * M_cam;
+
+    // Final transform
+    M = M_vp * M_persp * M_cam * M_mod;
 
     // Material
     Material mat(Color(0.0f, 1.0f, 0.0f), Color(0.0f, 0.5f, 0.0f), Color(0.5f, 0.5f, 0.5f), 32);
