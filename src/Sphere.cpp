@@ -77,3 +77,19 @@ void Sphere::generate_geometry(int width, int height) {
     delete[] gIndexBuffer;
     delete[] vertices;
 }
+
+void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
+    for (int i = 0; i < triangles.size(); i++) {
+        Eigen::Vector4f a4(triangles[i].a[0], triangles[i].a[1], triangles[i].a[2], 1.0f);
+        Eigen::Vector4f b4(triangles[i].b[0], triangles[i].b[1], triangles[i].b[2], 1.0f);
+        Eigen::Vector4f c4(triangles[i].c[0], triangles[i].c[1], triangles[i].c[2], 1.0f);
+
+        a4 = xform * a4;
+        b4 = xform * b4;
+        c4 = xform * c4;
+
+        triangles[i].a = a4.head<3>();
+        triangles[i].b = b4.head<3>();
+        triangles[i].c = c4.head<3>();
+    }
+}

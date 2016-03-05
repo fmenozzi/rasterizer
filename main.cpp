@@ -103,10 +103,27 @@ int main(int argc, char* argv[]) {
                0.0f,            0.0f,           0.0f,           1.0f;
 
     // Final transform
-    M = M_vp * M_persp * M_cam * M_mod;
+    //M = M_vp * M_persp * M_cam * M_mod;
+    M = M_mod;
 
     // Sphere
-    Sphere sphere(Material(Color(0.0f, 1.0f, 0.0f), Color(0.0f, 0.5f, 0.0f), Color(0.5f, 0.5f, 0.5f), 32));
+    Color ka(0.0f, 1.0f, 0.0f);
+    Color kd(0.0f, 0.5f, 0.0f);
+    Color ks(0.5f, 0.5f, 0.5f);
+    Sphere sphere(Material(ka, kd, ks, 32), M);
+
+    /*
+    for (const auto& tri : sphere.triangles) {
+        Eigen::Vector3f center_to_a = tri.a - sphere.center;
+        Eigen::Vector3f center_to_b = tri.b - sphere.center;
+        Eigen::Vector3f center_to_c = tri.c - sphere.center;
+
+        printf("(%f, %f, %f), mag=%f\n", center_to_a[0], center_to_a[1], center_to_a[2], center_to_a.norm());
+        printf("(%f, %f, %f), mag=%f\n", center_to_b[0], center_to_b[1], center_to_b[2], center_to_b.norm());
+        printf("(%f, %f, %f), mag=%f\n", center_to_c[0], center_to_c[1], center_to_c[2], center_to_c.norm());
+        printf("\n");
+    } 
+    */
 
     // Black buffer
     buffer = new Color[NX*NY];

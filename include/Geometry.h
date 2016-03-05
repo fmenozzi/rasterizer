@@ -11,9 +11,9 @@
 struct Geometry {
     std::vector<Triangle> triangles; 
     Material mat;
-    Eigen::Matrix4f transform;
+    Eigen::Matrix4f xform;
 
-    Geometry(Material _mat) : mat(_mat) {
+    Geometry(Material _mat, const Eigen::Matrix4f& _xform) : mat(_mat), xform(_xform) {
         triangles = std::vector<Triangle>();
     }
 };
