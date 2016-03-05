@@ -52,33 +52,35 @@ void cleanup() {
     }
 #endif
 
+void draw(int x, int y, const Color& color) {
+    buffer[x*NY + y] = color;
+}
+
 int main(int argc, char* argv[]) {
     // White buffer
     buffer = new Color[NX*NY];
-    for (int i = 0; i < NX; i++)
-        for (int j = 0; j < NY; j++)
-            buffer[i*NY + j] = Color(1.0f, 1.0f, 1.0f);
-
-    // Test that Eigen is working properly
-    Eigen::Matrix4f m;
-    int k = 0;
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            m(i,j) = k++;
-    std::cout << m << std::endl;
+    for (int x = 0; x < NX; x++)
+        for (int y = 0; y < NY; y++)
+            draw(x, y, Color(1,1,1));
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
         glutInitWindowSize(NX, NY);
-        glutCreateWindow("Part 1");
+        #if defined(UNSHADED)
+            const char* window_name = "Part 1 (Unshaded)";
+        #endif
+        glutCreateWindow(window_name);
         glutDisplayFunc(gl_display);
         glutKeyboardFunc(gl_keyboard);
         glutMainLoop();
     #else
         // Write buffer to image file
-        FILE* fp = fopen("images/part1.ppm", "w");
+        #if defined(UNSHADED)
+            const char* ppmpath = "images/part1-unshaded.ppm";
+        #endif
+        FILE* fp = fopen(ppmpath, "w");
         fprintf(fp, "P3\n");
         fprintf(fp, "%d %d %d\n", NX, NY, 255);
         for (int i = NX-1; i >= 0; i--) {

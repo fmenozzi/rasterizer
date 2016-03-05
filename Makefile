@@ -8,23 +8,23 @@ INC = -Iinclude
 
 GL_LFLAGS = -lGL -lGLU -lglut
 
-all: part1-gl clean
+all: unshaded-gl clean
 
-part1:
-	@echo "Part 1"
+unshaded:
+	@echo "Part 1 (Unshaded)"
 	@echo "Building..."
-	@$(CPP_RELEASE) $(INC) part1.cpp $(SRC) -o part1
+	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main -DUNSHADED
 	@echo "Rendering..."
-	@./part1
+	@./main
 	@echo "Done"
 
-part1-gl:
-	@echo "Part 1 using OpenGL"
+unshaded-gl:
+	@echo "Part 1 (Unshaded) using OpenGL"
 	@echo "Building..."
-	@$(CPP_RELEASE) $(INC) part1.cpp $(SRC) -o part1 $(GL_LFLAGS) -DUSE_OPENGL
+	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main $(GL_LFLAGS) -DUNSHADED -DUSE_OPENGL
 	@echo "Rendering..."
-	@./part1
+	@./main
 	@echo "Done"
 
 clean:
-	@rm -f part1
+	@rm -f main
