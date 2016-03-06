@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
                0.0f,            0.0f,           0.0f,           1.0f;
 
     // Perspective transform
-    M_persp << 2.0f*n/(r-l),    0.0f,           (l+r)/(l-r),    0.0f,
+    M_orthP << 2.0f*n/(r-l),    0.0f,           (l+r)/(l-r),    0.0f,
                0.0f,            2.0f*n/(t-b),   (b+t)/(b-t),    0.0f,
                0.0f,            0.0f,           (f+n)/(n-f),    2.0f*f*n/(f-n),
                0.0f,            0.0f,           1.0f,           0.0f;
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
                0.0f,            0.0f,           0.0f,           1.0f;
 
     // Final transform
-    M = M_vp * M_persp * M_cam * M_mod;
+    M = M_vp * M_orthP * M_cam * M_mod;
 
     // Sphere
     Color ka(0.0f, 1.0f, 0.0f);
