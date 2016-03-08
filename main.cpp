@@ -113,10 +113,10 @@ int main(int argc, char* argv[]) {
     constexpr float n = -0.1f;
     constexpr float f = -1000.0f;
 
-    Eigen::Matrix4f M, M_mod, M_cam, M_orthP, M_vp;
+    Eigen::Matrix4f M, M_m, M_cam, P, M_orth, M_vp;
 
     // Modeling transform (i.e. scale by 2 and translate to (0,0,-7))
-    M_mod <<   2.0f,            0.0f,           0.0f,           0.0f,
+    M_m <<     2.0f,            0.0f,           0.0f,           0.0f,
                0.0f,            2.0f,           0.0f,           0.0f,
                0.0f,            0.0f,           2.0f,          -7.0f,
                0.0f,            0.0f,           0.0f,           1.0f;
@@ -128,10 +128,16 @@ int main(int argc, char* argv[]) {
                0.0f,            0.0f,           0.0f,           1.0f;
 
     // Perspective transform
-    M_orthP << 2.0f*n/(r-l),    0.0f,           (l+r)/(l-r),    0.0f,
-               0.0f,            2.0f*n/(t-b),   (b+t)/(b-t),    0.0f,
-               0.0f,            0.0f,           (f+n)/(n-f),    2.0f*f*n/(f-n),
+    P <<       n,               0.0f,           0.0f,           0.0f,
+               0.0f,            n,              0.0f,           0.0f,
+               0.0f,            0.0f,           n+f,            -f*n,
                0.0f,            0.0f,           1.0f,           0.0f;
+
+    // Orthographic transform
+    M_orth <<  2.0f/(r-l),      0.0f,           0.0f,           -(r+l)/(r-l),
+               0.0f,            2.0f/(t-b),     0.0f,           -(t+b)/(t-b),
+               0.0f,            0.0f,           2.0f/(n-f),     -(n+f)/(n-f),
+               0.0f,            0.0f,           0.0f,           1.0f;
 
     // Viewport transform
     M_vp <<    NX/2.0f,         0.0f,           0.0f,           (NX-1)/2.0f,
@@ -140,7 +146,9 @@ int main(int argc, char* argv[]) {
                0.0f,            0.0f,           0.0f,           1.0f;
 
     // Final transform
-    M = M_vp * M_orthP * M_cam * M_mod;
+    M = M_vp * M_orth * P * M_cam * M_m;
+
+    std::cout << M << std::endl << std::endl;
 
     // Sphere
     Color ka(0.0f, 1.0f, 0.0f);
@@ -160,6 +168,7 @@ int main(int argc, char* argv[]) {
     rasterize(tri);
     */
 
+    /*
     for (size_t i = 0; i < sphere.triangles.size(); i++) {
         Eigen::Vector3f a = sphere.triangles[i].a;
         Eigen::Vector3f b = sphere.triangles[i].b;
@@ -167,6 +176,7 @@ int main(int argc, char* argv[]) {
 
         printf("(%f, %f, %f), (%f, %f, %f), (%f, %f, %f)\n", a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
     }
+    */
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
