@@ -60,12 +60,49 @@ void draw(int x, int y, const Color& color) {
 }
 
 void rasterize(const Triangle& tri) {
+    printf("Rasterize called\n");
 
-}
+    // Get bounding box
+    BoundingBox bb = tri.bounds();
 
-void rasterize(const Sphere& sphere) {
-    for (const auto& triangle : sphere.triangles)
-        rasterize(triangle);
+    // Vertices
+    float ax = tri.a[0];
+    float ay = tri.a[1];
+    float bx = tri.b[0];
+    float by = tri.b[1];
+    float cx = tri.c[0];
+    float cy = tri.c[1];
+
+    // Bounding box width
+    float width = bb.xmax - bb.xmin;
+
+    // Beta setup
+    float beta_denom = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
+    float beta_x = (ay-cy) / beta_denom;
+    float beta_y = (cx-ax) / beta_denom;
+
+    // Gamma setup
+    float gamma_denom = (ay-by)*cx + (bx-ax)*cy + ax*by - bx*ay;
+    float gamma_x = (ay-by) / gamma_denom;
+    float gamma_y = (bx-ax) / gamma_denom;
+
+    float beta, gamma;
+    for (int y = bb.ymin; y <= bb.ymax; y++) {
+        for (int x = bb.xmin; x <= bb.xmax; x++) {
+            beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
+            gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
+
+            if (beta >= 0 && gamma >= 0 && beta + gamma <= 1) {
+                    draw(x, y, Color(1,1,1));
+            }
+
+            beta  += beta_x;
+            gamma += gamma_x;
+        }
+
+        beta  += beta_y - width*beta_x;
+        gamma += gamma_y - width*gamma_x;
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -76,9 +113,9 @@ int main(int argc, char* argv[]) {
     constexpr float n = -0.1f;
     constexpr float f = -1000.0f;
 
-    Eigen::Matrix4f M, M_mod, M_cam, M_persp, M_vp;
+    Eigen::Matrix4f M, M_mod, M_cam, M_orthP, M_vp;
 
-    // Modeling transform (i.e. scale by two and translate to (0,0,-7))
+    // Modeling transform (i.e. scale by 2 and translate to (0,0,-7))
     M_mod <<   2.0f,            0.0f,           0.0f,           0.0f,
                0.0f,            2.0f,           0.0f,           0.0f,
                0.0f,            0.0f,           2.0f,          -7.0f,
@@ -111,22 +148,25 @@ int main(int argc, char* argv[]) {
     Color ks(0.5f, 0.5f, 0.5f);
     Sphere sphere(Material(ka, kd, ks, 32), M);
 
-    for (const auto& tri : sphere.triangles) {
-        Eigen::Vector3f final_a = tri.a;
-        Eigen::Vector3f final_b = tri.b;
-        Eigen::Vector3f final_c = tri.c;
-
-        printf("(%f, %f, %f), mag=%f\n", final_a[0], final_a[1], final_a[2], final_a.norm());
-        printf("(%f, %f, %f), mag=%f\n", final_b[0], final_b[1], final_b[2], final_b.norm());
-        printf("(%f, %f, %f), mag=%f\n", final_c[0], final_c[1], final_c[2], final_c.norm());
-        printf("\n");
-    } 
-
     // Black buffer
     buffer = new Color[NX*NY];
     for (int x = 0; x < NX; x++)
         for (int y = 0; y < NY; y++)
             draw(x, y, Color(0,0,0));
+
+    /*
+    Eigen::Vector3f va(100,100,100), vb(100, 200, 100), vc(150, 150, 150);
+    Triangle tri(va, vb, vc);
+    rasterize(tri);
+    */
+
+    for (size_t i = 0; i < sphere.triangles.size(); i++) {
+        Eigen::Vector3f a = sphere.triangles[i].a;
+        Eigen::Vector3f b = sphere.triangles[i].b;
+        Eigen::Vector3f c = sphere.triangles[i].c;
+
+        printf("(%f, %f, %f), (%f, %f, %f), (%f, %f, %f)\n", a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+    }
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window

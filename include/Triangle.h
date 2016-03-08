@@ -21,7 +21,7 @@ struct Triangle {
         c(_c),
         n(((b-a).cross(c-a)).normalized()) {}
 
-    BoundingBox bounds() {
+    BoundingBox bounds() const {
         return BoundingBox(a, b, c);
     }
 
