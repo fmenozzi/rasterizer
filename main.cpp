@@ -60,7 +60,7 @@ void draw(int x, int y, const Color& color) {
 }
 
 void rasterize(const Triangle& tri) {
-    printf("Rasterize called\n");
+    // TODO: Backface culling
 
     // Get bounding box
     BoundingBox bb = tri.bounds();
@@ -78,13 +78,13 @@ void rasterize(const Triangle& tri) {
 
     // Beta setup
     float beta_denom = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
-    float beta_x = (ay-cy) / beta_denom;
-    float beta_y = (cx-ax) / beta_denom;
+    float beta_x     = (ay-cy) / beta_denom;
+    float beta_y     = (cx-ax) / beta_denom;
 
     // Gamma setup
     float gamma_denom = (ay-by)*cx + (bx-ax)*cy + ax*by - bx*ay;
-    float gamma_x = (ay-by) / gamma_denom;
-    float gamma_y = (bx-ax) / gamma_denom;
+    float gamma_x     = (ay-by) / gamma_denom;
+    float gamma_y     = (bx-ax) / gamma_denom;
 
     float beta, gamma;
     for (int y = bb.ymin; y <= bb.ymax; y++) {
@@ -92,6 +92,7 @@ void rasterize(const Triangle& tri) {
             beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
             gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
 
+            // TODO: z buffer
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1) {
                     draw(x, y, Color(1,1,1));
             }
@@ -148,8 +149,6 @@ int main(int argc, char* argv[]) {
     // Final transform
     M = M_vp * M_orth * P * M_cam * M_m;
 
-    std::cout << M << std::endl << std::endl;
-
     // Sphere
     Color ka(0.0f, 1.0f, 0.0f);
     Color kd(0.0f, 0.5f, 0.0f);
@@ -162,21 +161,15 @@ int main(int argc, char* argv[]) {
         for (int y = 0; y < NY; y++)
             draw(x, y, Color(0,0,0));
 
-    /*
-    Eigen::Vector3f va(100,100,100), vb(100, 200, 100), vc(150, 150, 150);
-    Triangle tri(va, vb, vc);
-    rasterize(tri);
-    */
-
-    /*
     for (size_t i = 0; i < sphere.triangles.size(); i++) {
+        /*
         Eigen::Vector3f a = sphere.triangles[i].a;
         Eigen::Vector3f b = sphere.triangles[i].b;
         Eigen::Vector3f c = sphere.triangles[i].c;
-
         printf("(%f, %f, %f), (%f, %f, %f), (%f, %f, %f)\n", a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+        */
+        rasterize(sphere.triangles[i]);
     }
-    */
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
