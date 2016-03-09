@@ -97,6 +97,8 @@ void rasterize(const Triangle& tri) {
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1) {
                 #if defined(UNSHADED)
                     draw(x, y, Color::white());
+                #elif defined(FLAT_SHADING)
+                    draw(x, y, Color::white());
                 #endif
             }
 
