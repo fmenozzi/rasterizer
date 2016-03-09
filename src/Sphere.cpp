@@ -85,11 +85,11 @@ Eigen::Vector3f cartesian(const Eigen::Vector4f& v) {
 }
 
 void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
-    for (size_t i = 0; i < triangles.size(); i++) {
+    for (auto& tri : triangles) {
         // Homogeneous vertex coordinates
-        Eigen::Vector4f a4(triangles[i].a[0], triangles[i].a[1], triangles[i].a[2], 1.0f);
-        Eigen::Vector4f b4(triangles[i].b[0], triangles[i].b[1], triangles[i].b[2], 1.0f);
-        Eigen::Vector4f c4(triangles[i].c[0], triangles[i].c[1], triangles[i].c[2], 1.0f);
+        Eigen::Vector4f a4(tri.a[0], tri.a[1], tri.a[2], 1.0f);
+        Eigen::Vector4f b4(tri.b[0], tri.b[1], tri.b[2], 1.0f);
+        Eigen::Vector4f c4(tri.c[0], tri.c[1], tri.c[2], 1.0f);
 
         // Transformed Cartesian vertex coordinates
         Eigen::Vector3f a = cartesian(xform * a4);
@@ -97,9 +97,9 @@ void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
         Eigen::Vector3f c = cartesian(xform * c4);
 
         // Transform triangle
-        triangles[i].a = a;
-        triangles[i].b = b;
-        triangles[i].c = c;
-        triangles[i].n = ((b-a).cross(c-a)).normalized();
+        tri.a = a;
+        tri.b = b;
+        tri.c = c;
+        tri.n = ((b-a).cross(c-a)).normalized();
     }
 }

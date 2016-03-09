@@ -97,7 +97,9 @@ void rasterize(const Triangle& tri) {
 
             // TODO: z buffer
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1) {
+                #if defined(UNSHADED)
                     draw(x, y, Color(1,1,1));
+                #endif
             }
 
             beta  += beta_x;
@@ -164,15 +166,9 @@ int main(int argc, char* argv[]) {
         for (int y = 0; y < NY; y++)
             draw(x, y, Color(0,0,0));
 
-    for (size_t i = 0; i < sphere.triangles.size(); i++) {
-        /*
-        Eigen::Vector3f a = sphere.triangles[i].a;
-        Eigen::Vector3f b = sphere.triangles[i].b;
-        Eigen::Vector3f c = sphere.triangles[i].c;
-        printf("(%f, %f, %f), (%f, %f, %f), (%f, %f, %f)\n", a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
-        */
-        rasterize(sphere.triangles[i]);
-    }
+    // Rasterize sphere
+    for (auto& tri : sphere.triangles)
+        rasterize(tri);
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
