@@ -56,7 +56,7 @@ void cleanup() {
 #endif
 
 void draw(int x, int y, const Color& color) {
-    buffer[x*NY + y] = color;
+    buffer[x*NY + y] = color.correct(2.2f);
 }
 
 void rasterize(const Triangle& tri) {
