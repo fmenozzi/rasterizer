@@ -5,8 +5,6 @@
 #include <cmath>
 #include <cstdio>
 
-#include <iostream>
-
 void Sphere::generate_geometry(int width, int height) {
     int  gNumVertices  = 0;
     int  gNumTriangles = 0;

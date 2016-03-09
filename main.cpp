@@ -11,8 +11,6 @@
 #include <Light.h>
 #include <Sphere.h>
 
-#include <iostream>
-
 constexpr int NX = 512;
 constexpr int NY = 512;
 
@@ -98,7 +96,7 @@ void rasterize(const Triangle& tri) {
             // TODO: z buffer
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1) {
                 #if defined(UNSHADED)
-                    draw(x, y, Color(1,1,1));
+                    draw(x, y, Color::white());
                 #endif
             }
 
@@ -121,7 +119,7 @@ int main(int argc, char* argv[]) {
 
     Eigen::Matrix4f M, M_m, M_cam, P, M_orth, M_vp;
 
-    // Modeling transform (i.e. scale by 2 and translate to (0,0,-7))
+    // Modeling transform
     M_m <<     2.0f,            0.0f,           0.0f,           0.0f,
                0.0f,            2.0f,           0.0f,           0.0f,
                0.0f,            0.0f,           2.0f,          -7.0f,
@@ -158,13 +156,14 @@ int main(int argc, char* argv[]) {
     Color ka(0.0f, 1.0f, 0.0f);
     Color kd(0.0f, 0.5f, 0.0f);
     Color ks(0.5f, 0.5f, 0.5f);
-    Sphere sphere(Material(ka, kd, ks, 32), M);
+    Material mat(ka, kd, ks, 32);
+    Sphere sphere(mat, M);
 
     // Black buffer
     buffer = new Color[NX*NY];
     for (int x = 0; x < NX; x++)
         for (int y = 0; y < NY; y++)
-            draw(x, y, Color(0,0,0));
+            draw(x, y, Color::black());
 
     // Rasterize sphere
     for (auto& tri : sphere.triangles)

@@ -20,6 +20,14 @@ struct Color {
     }
 
     Color correct(float gamma) const;
+
+    static Color white() {
+        return Color(1,1,1);
+    }
+
+    static Color black() {
+        return Color(0,0,0);
+    }
 };
 
 #endif
