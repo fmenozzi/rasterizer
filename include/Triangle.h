@@ -5,6 +5,8 @@
 
 #include <BoundingBox.h>
 #include <Color.h>
+#include <Material.h>
+#include <Light.h>
 
 struct Triangle {
     // Vertices
@@ -28,6 +30,8 @@ struct Triangle {
     Eigen::Vector3f centroid() const {
         return 1/3.0f*a + 1/3.0f*b + 1/3.0f*c;
     }
+
+    Color shade(const Eigen::Vector3f& p, const Eigen::Vector3f& n, const Light& light, const Material& mat) const;
 };
 
 #endif

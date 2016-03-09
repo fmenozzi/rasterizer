@@ -4,6 +4,8 @@
     #include <GL/glut.h>
 #endif
 
+#include <iostream>
+
 #include <Eigen/Dense>
 
 #include <Color.h>
@@ -15,6 +17,7 @@ constexpr int NX = 512;
 constexpr int NY = 512;
 
 Color* buffer;
+float zbuf[NX][NY];
 
 void cleanup() {
     delete[] buffer;
@@ -57,7 +60,15 @@ void draw(int x, int y, const Color& color) {
     buffer[x*NY + y] = color.correct(2.2f);
 }
 
-void rasterize(const Triangle& tri) {
+float lerp_z(const Triangle& tri, float beta, float gamma) {
+    float az = tri.a[2];
+    float bz = tri.b[2];
+    float cz = tri.c[2];
+
+    return az + (bz-az)*beta + (cz-az)*gamma;
+}
+
+void rasterize(const Triangle& tri, const Light& light, const Material& mat) {
     // Backface culling
     Eigen::Vector3f v = tri.centroid().normalized();
     if (v.dot(tri.n) < 0)
@@ -93,12 +104,14 @@ void rasterize(const Triangle& tri) {
             beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
             gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
 
-            // TODO: z buffer
-            if (beta >= 0 && gamma >= 0 && beta + gamma <= 1) {
+            float z = lerp_z(tri, beta, gamma);
+
+            if (beta >= 0 && gamma >= 0 && beta + gamma <= 1 && z > zbuf[x][y]) {
+                zbuf[x][y] = z;
                 #if defined(UNSHADED)
                     draw(x, y, Color::white());
                 #elif defined(FLAT_SHADING)
-                    draw(x, y, Color::white());
+                    draw(x, y, tri.shade(tri.centroid(), tri.n, light, mat));
                 #endif
             }
 
@@ -161,15 +174,23 @@ int main(int argc, char* argv[]) {
     Material mat(ka, kd, ks, 32);
     Sphere sphere(mat, M);
 
+    // Light
+    Light light(Eigen::Vector3f(-4, 4, -3), 1);
+
     // Black buffer
     buffer = new Color[NX*NY];
     for (int x = 0; x < NX; x++)
         for (int y = 0; y < NY; y++)
             draw(x, y, Color::black());
 
+    // Z buffer starts at max depth
+    for (int x = 0; x < NX; x++)
+        for (int y = 0; y < NY; y++)
+            zbuf[x][y] = f;
+
     // Rasterize sphere
     for (auto& tri : sphere.triangles)
-        rasterize(tri);
+        rasterize(tri, light, mat);
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
