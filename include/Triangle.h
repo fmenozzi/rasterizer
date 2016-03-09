@@ -25,7 +25,7 @@ struct Triangle {
         return BoundingBox(a, b, c);
     }
 
-    Eigen::Vector3f centroid() {
+    Eigen::Vector3f centroid() const {
         return 1/3.0f*a + 1/3.0f*b + 1/3.0f*c;
     }
 };

@@ -60,7 +60,10 @@ void draw(int x, int y, const Color& color) {
 }
 
 void rasterize(const Triangle& tri) {
-    // TODO: Backface culling
+    // Backface culling
+    Eigen::Vector3f v = tri.centroid().normalized();
+    if (v.dot(tri.n) < 0)
+        return;
 
     // Get bounding box
     BoundingBox bb = tri.bounds();
