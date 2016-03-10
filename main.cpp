@@ -65,12 +65,9 @@ void draw(int x, int y, const Color& color) {
     buffer[x*NY + y] = color.correct(2.2f);
 }
 
-float lerp_z(const Triangle& tri, float beta, float gamma) {
-    float az = tri.a[2];
-    float bz = tri.b[2];
-    float cz = tri.c[2];
-
-    return az + (cz-az)*beta + (bz-az)*gamma;
+template <typename T>
+T lerp(T a, T b, T c, float beta, float gamma) {
+    return a + (c-a)*beta + (b-a)*gamma;
 }
 
 void rasterize(const Triangle& tri, const Light& light, const Material& mat, const Eigen::Matrix4f& M) {
@@ -105,7 +102,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
             beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
             gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
 
-            float z = lerp_z(tri_vp, beta, gamma);
+            float z = lerp(tri_vp.a[2], tri_vp.b[2], tri_vp.c[2], beta, gamma);
 
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1 && z > zbuf[x][y]) {
                 zbuf[x][y] = z;
@@ -113,6 +110,14 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
                     draw(x, y, Color::white());
                 } else if (strcmp(shade_mode, "FLAT") == 0) {
                     draw(x, y, tri.shade(tri.centroid(), tri.n, light, mat));
+                } else if (strcmp(shade_mode, "GOURAUD") == 0) {
+                    /*
+                    Color ac = tri.shade(tri.a, tri.an, light, mat);
+                    Color bc = tri.shade(tri.b, tri.bn, light, mat);
+                    Color cc = tri.shade(tri.c, tri.cn, light, mat);
+
+                    draw(x, y, lerp_color(ac, bc, cc, beta, gamma));
+                    */
                 }
             }
         }
