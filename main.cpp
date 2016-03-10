@@ -79,17 +79,12 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     if (v.dot(tri.n) > 0)
         return;
 
-    // Homogeneous vertex coordinates
-    Eigen::Vector4f a4(tri.a[0], tri.a[1], tri.a[2], 1.0f);
-    Eigen::Vector4f b4(tri.b[0], tri.b[1], tri.b[2], 1.0f);
-    Eigen::Vector4f c4(tri.c[0], tri.c[1], tri.c[2], 1.0f);
+    // Convert triangles coordinates from world to viewport
+    auto a_vp = vec4to3(M * Eigen::Vector4f(tri.a[0], tri.a[1], tri.a[2], 1.0f));
+    auto b_vp = vec4to3(M * Eigen::Vector4f(tri.b[0], tri.b[1], tri.b[2], 1.0f));
+    auto c_vp = vec4to3(M * Eigen::Vector4f(tri.c[0], tri.c[1], tri.c[2], 1.0f));
 
-    // Transformed Cartesian vertex coordinates
-    Eigen::Vector3f a_vp = vec4to3(M * a4);
-    Eigen::Vector3f b_vp = vec4to3(M * b4);
-    Eigen::Vector3f c_vp = vec4to3(M * c4);
-
-    Triangle tri_vp(a_vp,b_vp,c_vp);
+    Triangle tri_vp(a_vp, b_vp, c_vp);
 
     BoundingBox bb = tri_vp.bounds();
 
@@ -197,7 +192,7 @@ int main(int argc, char* argv[]) {
             zbuf[x][y] = f;
 
     // Rasterize sphere
-    for (auto& tri : sphere.triangles)
+    for (const auto& tri : sphere.triangles)
         rasterize(tri, light, mat, M);
 
     #if defined(USE_OPENGL)

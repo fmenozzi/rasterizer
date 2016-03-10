@@ -82,15 +82,10 @@ void Sphere::generate_geometry(int width, int height) {
 
 void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
     for (auto& tri : triangles) {
-        // Homogeneous vertex coordinates
-        Eigen::Vector4f a4(tri.a[0], tri.a[1], tri.a[2], 1.0f);
-        Eigen::Vector4f b4(tri.b[0], tri.b[1], tri.b[2], 1.0f);
-        Eigen::Vector4f c4(tri.c[0], tri.c[1], tri.c[2], 1.0f);
-
         // Transformed Cartesian vertex coordinates
-        Eigen::Vector3f a = vec4to3(xform * a4);
-        Eigen::Vector3f b = vec4to3(xform * b4);
-        Eigen::Vector3f c = vec4to3(xform * c4);
+        auto a = vec4to3(xform * Eigen::Vector4f(tri.a[0], tri.a[1], tri.a[2], 1.0f));
+        auto b = vec4to3(xform * Eigen::Vector4f(tri.b[0], tri.b[1], tri.b[2], 1.0f));
+        auto c = vec4to3(xform * Eigen::Vector4f(tri.c[0], tri.c[1], tri.c[2], 1.0f));
 
         // Transform triangle
         tri.a = a;
