@@ -8,6 +8,8 @@
 
 #include <Eigen/Dense>
 
+#include <argparser.h>
+
 #include <Color.h>
 #include <Material.h>
 #include <Light.h>
@@ -18,6 +20,8 @@ constexpr int NY = 512;
 
 Color* buffer;
 float zbuf[NX][NY];
+
+char shade_mode[20];
 
 void cleanup() {
     delete[] buffer;
@@ -108,11 +112,11 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat) {
 
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1 && z > zbuf[x][y]) {
                 zbuf[x][y] = z;
-                #if defined(UNSHADED)
+                if (strcmp(shade_mode, "NONE") == 0) {
                     draw(x, y, Color::white());
-                #elif defined(FLAT_SHADING)
+                } else if (strcmp(shade_mode, "FLAT") == 0) {
                     draw(x, y, tri.shade(tri.centroid(), tri.n, light, mat));
-                #endif
+                }
             }
 
             beta  += beta_x;
@@ -125,6 +129,11 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat) {
 }
 
 int main(int argc, char* argv[]) {
+    // Parse system arguments
+    argparser ap = argparser_create(argc, argv, PARSEMODE_LENIENT);
+    argparser_add(&ap, "-s", "--shading", ARGTYPE_STRING, &shade_mode, nullptr);
+    argparser_parse(&ap);
+
     constexpr float l = -0.1f;
     constexpr float r =  0.1f;
     constexpr float b = -0.1f;
@@ -194,33 +203,25 @@ int main(int argc, char* argv[]) {
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
+        char window_name[50];
+        if      (strcmp(shade_mode, "NONE") == 0)    strcpy(window_name, "Part 1 (Unshaded)");
+        else if (strcmp(shade_mode, "FLAT") == 0)    strcpy(window_name, "Part 2 (Flat Shading)");
+        else if (strcmp(shade_mode, "GOURAUD") == 0) strcpy(window_name, "Part 3 (Gouraud Shading)");
+        else                                         strcpy(window_name, "Part 4 (Phong Shading)");
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
         glutInitWindowSize(NX, NY);
-        #if defined(UNSHADED)
-            const char* window_name = "Part 1 (Unshaded)";
-        #elif defined(FLAT_SHADING)
-            const char* window_name = "Part 2 (Flat Shading)";
-        #elif defined(GOURAUD_SHADING)
-            const char* window_name = "Part 3 (Gouraud Shading)";
-        #elif defined(PHONG_SHADING)
-            const char* window_name = "Part 4 (Phong Shading)";
-        #endif
         glutCreateWindow(window_name);
         glutDisplayFunc(gl_display);
         glutKeyboardFunc(gl_keyboard);
         glutMainLoop();
     #else
         // Write buffer to image file
-        #if defined(UNSHADED)
-            const char* ppmpath = "images/part1-unshaded.ppm";
-        #elif defined(FLAT_SHADING)
-            const char* ppmpath = "images/part2-flat.ppm";
-        #elif defined(GOURAUD_SHADING)
-            const char* ppmpath = "images/part3-gouraud.ppm";
-        #elif defined(PHONG_SHADING)
-            const char* ppmpath = "images/part4-phong.ppm";
-        #endif
+        char ppmpath[50];
+        if      (strcmp(shade_mode, "NONE") == 0)    strcpy(ppmpath, "images/part1-unshaded.ppm");
+        else if (strcmp(shade_mode, "FLAT") == 0)    strcpy(ppmpath, "images/part2-flat.ppm");
+        else if (strcmp(shade_mode, "GOURAUD") == 0) strcpy(ppmpath, "images/part3-gouruad.ppm");
+        else                                         strcpy(ppmpath, "images/part4-phong.ppm");
         FILE* fp = fopen(ppmpath, "w");
         fprintf(fp, "P3\n");
         fprintf(fp, "%d %d %d\n", NX, NY, 255);

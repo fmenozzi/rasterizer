@@ -23,7 +23,7 @@ Color Triangle::shade(const Eigen::Vector3f& p, const Eigen::Vector3f& n, const 
     Color Ld = mat.kd * I * std::max(0.0f, n.dot(l));
     Color Ls = mat.ks * I * std::pow(std::max(0.0f, n.dot(h)), mat.sp);
 
-    printf("Ls = (%f, %f, %f)\n", Ls.r, Ls.g, Ls.b);
+    //printf("Ls = (%f, %f, %f)\n", Ls.r, Ls.g, Ls.b);
 
     /*
     printf("La = (%f, %f, %f)\n", La.r, La.g, La.b);
