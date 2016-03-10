@@ -17,11 +17,15 @@ struct Triangle {
     // Triangle normal
     Eigen::Vector3f n;
 
+    // Vertex normals
+    Eigen::Vector3f an;
+    Eigen::Vector3f bn;
+    Eigen::Vector3f cn;
+
     Triangle(const Eigen::Vector3f& _a, const Eigen::Vector3f& _b, const Eigen::Vector3f& _c) :
         a(_a),
         b(_b),
-        c(_c),
-        n(((b-a).cross(c-a)).normalized()) {}
+        c(_c) {}
 
     BoundingBox bounds() const {
         return BoundingBox(a, b, c);

@@ -87,10 +87,17 @@ void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
         auto b = vec4to3(xform * Eigen::Vector4f(tri.b[0], tri.b[1], tri.b[2], 1.0f));
         auto c = vec4to3(xform * Eigen::Vector4f(tri.c[0], tri.c[1], tri.c[2], 1.0f));
 
-        // Transform triangle
+        // Transform vertices
         tri.a = a;
         tri.b = b;
         tri.c = c;
+
+        // Transform normal
         tri.n = ((b-a).cross(c-a)).normalized();
+
+        // Transform vertex normals
+        tri.an = (a-center).normalized();
+        tri.bn = (b-center).normalized();
+        tri.cn = (c-center).normalized();
     }
 }

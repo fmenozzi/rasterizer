@@ -111,13 +111,11 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
                 } else if (strcmp(shade_mode, "FLAT") == 0) {
                     draw(x, y, tri.shade(tri.centroid(), tri.n, light, mat));
                 } else if (strcmp(shade_mode, "GOURAUD") == 0) {
-                    /*
                     Color ac = tri.shade(tri.a, tri.an, light, mat);
                     Color bc = tri.shade(tri.b, tri.bn, light, mat);
                     Color cc = tri.shade(tri.c, tri.cn, light, mat);
 
-                    draw(x, y, lerp_color(ac, bc, cc, beta, gamma));
-                    */
+                    draw(x, y, lerp(ac, bc, cc, beta, gamma));
                 }
             }
         }
@@ -219,7 +217,7 @@ int main(int argc, char* argv[]) {
         char ppmpath[50];
         if      (strcmp(shade_mode, "NONE") == 0)    strcpy(ppmpath, "images/part1-unshaded.ppm");
         else if (strcmp(shade_mode, "FLAT") == 0)    strcpy(ppmpath, "images/part2-flat.ppm");
-        else if (strcmp(shade_mode, "GOURAUD") == 0) strcpy(ppmpath, "images/part3-gouruad.ppm");
+        else if (strcmp(shade_mode, "GOURAUD") == 0) strcpy(ppmpath, "images/part3-gouraud.ppm");
         else                                         strcpy(ppmpath, "images/part4-phong.ppm");
         FILE* fp = fopen(ppmpath, "w");
         fprintf(fp, "P3\n");

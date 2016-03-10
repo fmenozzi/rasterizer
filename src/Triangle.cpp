@@ -2,7 +2,7 @@
 
 
 Color Triangle::shade(const Eigen::Vector3f& p, const Eigen::Vector3f& n, const Light& light, const Material& mat) const {
-
+    // Ambient light intensity
     float Ia = 0.2f;
 
     // Calculate v, l, and h
