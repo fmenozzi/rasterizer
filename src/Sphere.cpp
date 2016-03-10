@@ -2,6 +2,8 @@
 
 #include <Eigen/Dense>
 
+#include <Util.h>
+
 #include <cmath>
 #include <cstdio>
 
@@ -78,10 +80,6 @@ void Sphere::generate_geometry(int width, int height) {
     delete[] vertices;
 }
 
-Eigen::Vector3f cartesian(const Eigen::Vector4f& v) {
-    return Eigen::Vector3f(v[0]/v[3], v[1]/v[3], v[2]/v[3]);
-}
-
 void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
     for (auto& tri : triangles) {
         // Homogeneous vertex coordinates
@@ -90,15 +88,14 @@ void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
         Eigen::Vector4f c4(tri.c[0], tri.c[1], tri.c[2], 1.0f);
 
         // Transformed Cartesian vertex coordinates
-        Eigen::Vector3f a = cartesian(xform * a4);
-        Eigen::Vector3f b = cartesian(xform * b4);
-        Eigen::Vector3f c = cartesian(xform * c4);
+        Eigen::Vector3f a = vec4to3(xform * a4);
+        Eigen::Vector3f b = vec4to3(xform * b4);
+        Eigen::Vector3f c = vec4to3(xform * c4);
 
         // Transform triangle
         tri.a = a;
         tri.b = b;
         tri.c = c;
-        //tri.n = (tri.centroid() - center).normalized();
         tri.n = ((b-a).cross(c-a)).normalized();
     }
 }

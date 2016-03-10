@@ -14,6 +14,7 @@
 #include <Material.h>
 #include <Light.h>
 #include <Sphere.h>
+#include <Util.h>
 
 constexpr int NX = 512;
 constexpr int NY = 512;
@@ -72,17 +73,11 @@ float lerp_z(const Triangle& tri, float beta, float gamma) {
     return az + (cz-az)*beta + (bz-az)*gamma;
 }
 
-Eigen::Vector3f cartesian2(const Eigen::Vector4f& v) {
-    return Eigen::Vector3f(v[0]/v[3], v[1]/v[3], v[2]/v[3]);
-}
-
 void rasterize(const Triangle& tri, const Light& light, const Material& mat, const Eigen::Matrix4f& M) {
     // Backface culling
-    /*
     Eigen::Vector3f v = tri.centroid().normalized();
-    if (v.dot(tri.n) < 0)
+    if (v.dot(tri.n) > 0)
         return;
-    */
 
     // Homogeneous vertex coordinates
     Eigen::Vector4f a4(tri.a[0], tri.a[1], tri.a[2], 1.0f);
@@ -90,25 +85,23 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     Eigen::Vector4f c4(tri.c[0], tri.c[1], tri.c[2], 1.0f);
 
     // Transformed Cartesian vertex coordinates
-    Eigen::Vector3f a = cartesian2(M * a4);
-    Eigen::Vector3f b = cartesian2(M * b4);
-    Eigen::Vector3f c = cartesian2(M * c4);
+    Eigen::Vector3f a_vp = vec4to3(M * a4);
+    Eigen::Vector3f b_vp = vec4to3(M * b4);
+    Eigen::Vector3f c_vp = vec4to3(M * c4);
 
-    Triangle xformtri(a,b,c);
+    Triangle tri_vp(a_vp,b_vp,c_vp);
 
-    BoundingBox bb = xformtri.bounds();
+    BoundingBox bb = tri_vp.bounds();
 
-    float ax = a[0];
-    float ay = a[1];
-    float bx = b[0];
-    float by = b[1];
-    float cx = c[0];
-    float cy = c[1];
+    float ax = a_vp[0];
+    float ay = a_vp[1];
+    float bx = b_vp[0];
+    float by = b_vp[1];
+    float cx = c_vp[0];
+    float cy = c_vp[1];
 
-    // Beta setup
-    float beta_denom = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
-
-    // Gamma setup
+    // Denominators
+    float beta_denom  = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
     float gamma_denom = (ay-by)*cx + (bx-ax)*cy + ax*by - bx*ay;
 
     float beta, gamma;
@@ -117,7 +110,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
             beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
             gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
 
-            float z = lerp_z(xformtri, beta, gamma);
+            float z = lerp_z(tri_vp, beta, gamma);
 
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1 && z > zbuf[x][y]) {
                 zbuf[x][y] = z;
