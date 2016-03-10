@@ -20,6 +20,7 @@ enum class SHADEMODE {
     NONE,
     FLAT,
     GOURAUD,
+    PHONG,
 };
 
 constexpr int NX = 512;
@@ -37,6 +38,8 @@ void assign_shade_mode() {
         shade_mode = SHADEMODE::FLAT;
     else if (strcmp(shade_str, "GOURAUD") == 0)
         shade_mode = SHADEMODE::GOURAUD;
+    else
+        shade_mode = SHADEMODE::PHONG;
 }
 
 void cleanup() {
@@ -132,6 +135,12 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
                     auto cc = tri.shade(tri.c, tri.cn, light, mat);
 
                     draw(x, y, lerp(ac, bc, cc, beta, gamma));
+                } else {
+                    // Interpolate position and normal
+                    auto p = lerp(tri.a,  tri.b,  tri.c,  beta, gamma);
+                    auto n = lerp(tri.an, tri.bn, tri.cn, beta, gamma);
+
+                    draw(x, y, tri.shade(p, n, light, mat));
                 }
             }
         }

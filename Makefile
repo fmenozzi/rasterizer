@@ -8,9 +8,9 @@ INC = -Iinclude
 
 GL_LFLAGS = -lGL -lGLU -lglut
 
-all: clean build-gl unshaded-gl flat-gl gouraud-gl
+all: clean build-gl unshaded-gl flat-gl gouraud-gl phong-gl
 
-ppm: clean build unshaded flat gouraud
+ppm: clean build unshaded flat gouraud phong
 
 # Compilation
 build-gl:
@@ -48,6 +48,16 @@ gouraud:
 gouraud-gl:
 	@echo "Rendering Part 3 (Gouraud Shading) with OpenGL..."
 	@./main --shading=GOURAUD &
+	@echo "Done"
+
+# Part 4 (Phong Shading)
+phong:
+	@echo "Rendering Part 4 (Phong Shading)..."
+	@./main --shading=PHONG &
+	@echo "Done"
+phong-gl:
+	@echo "Rendering Part 4 (Phong Shading) with OpenGL..."
+	@./main --shading=PHONG &
 	@echo "Done"
 
 # Clean
