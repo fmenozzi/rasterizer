@@ -98,6 +98,7 @@ void Sphere::transform_geometry(const Eigen::Matrix4f& xform) {
         tri.a = a;
         tri.b = b;
         tri.c = c;
+        //tri.n = (tri.centroid() - center).normalized();
         tri.n = ((b-a).cross(c-a)).normalized();
     }
 }

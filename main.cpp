@@ -69,38 +69,47 @@ float lerp_z(const Triangle& tri, float beta, float gamma) {
     float bz = tri.b[2];
     float cz = tri.c[2];
 
-    return az + (bz-az)*beta + (cz-az)*gamma;
+    return az + (cz-az)*beta + (bz-az)*gamma;
 }
 
-void rasterize(const Triangle& tri, const Light& light, const Material& mat) {
+Eigen::Vector3f cartesian2(const Eigen::Vector4f& v) {
+    return Eigen::Vector3f(v[0]/v[3], v[1]/v[3], v[2]/v[3]);
+}
+
+void rasterize(const Triangle& tri, const Light& light, const Material& mat, const Eigen::Matrix4f& M) {
     // Backface culling
+    /*
     Eigen::Vector3f v = tri.centroid().normalized();
     if (v.dot(tri.n) < 0)
         return;
+    */
 
-    // Get bounding box
-    BoundingBox bb = tri.bounds();
+    // Homogeneous vertex coordinates
+    Eigen::Vector4f a4(tri.a[0], tri.a[1], tri.a[2], 1.0f);
+    Eigen::Vector4f b4(tri.b[0], tri.b[1], tri.b[2], 1.0f);
+    Eigen::Vector4f c4(tri.c[0], tri.c[1], tri.c[2], 1.0f);
 
-    // Vertices
-    float ax = tri.a[0];
-    float ay = tri.a[1];
-    float bx = tri.b[0];
-    float by = tri.b[1];
-    float cx = tri.c[0];
-    float cy = tri.c[1];
+    // Transformed Cartesian vertex coordinates
+    Eigen::Vector3f a = cartesian2(M * a4);
+    Eigen::Vector3f b = cartesian2(M * b4);
+    Eigen::Vector3f c = cartesian2(M * c4);
 
-    // Bounding box width
-    float width = bb.xmax - bb.xmin;
+    Triangle xformtri(a,b,c);
+
+    BoundingBox bb = xformtri.bounds();
+
+    float ax = a[0];
+    float ay = a[1];
+    float bx = b[0];
+    float by = b[1];
+    float cx = c[0];
+    float cy = c[1];
 
     // Beta setup
     float beta_denom = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
-    float beta_x     = (ay-cy) / beta_denom;
-    float beta_y     = (cx-ax) / beta_denom;
 
     // Gamma setup
     float gamma_denom = (ay-by)*cx + (bx-ax)*cy + ax*by - bx*ay;
-    float gamma_x     = (ay-by) / gamma_denom;
-    float gamma_y     = (bx-ax) / gamma_denom;
 
     float beta, gamma;
     for (int y = bb.ymin; y <= bb.ymax; y++) {
@@ -108,7 +117,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat) {
             beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
             gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
 
-            float z = lerp_z(tri, beta, gamma);
+            float z = lerp_z(xformtri, beta, gamma);
 
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1 && z > zbuf[x][y]) {
                 zbuf[x][y] = z;
@@ -118,13 +127,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat) {
                     draw(x, y, tri.shade(tri.centroid(), tri.n, light, mat));
                 }
             }
-
-            beta  += beta_x;
-            gamma += gamma_x;
         }
-
-        beta  += beta_y - width*beta_x;
-        gamma += gamma_y - width*gamma_x;
     }
 }
 
@@ -141,7 +144,7 @@ int main(int argc, char* argv[]) {
     constexpr float n = -0.1f;
     constexpr float f = -1000.0f;
 
-    Eigen::Matrix4f M, M_m, M_cam, P, M_orth, M_vp;
+    Eigen::Matrix4f M, M_world, M_m, M_cam, P, M_orth, M_vp;
 
     // Modeling transform
     M_m <<     2.0f,            0.0f,           0.0f,           0.0f,
@@ -173,15 +176,18 @@ int main(int argc, char* argv[]) {
                0.0f,            0.0f,           1.0f,           0.0f,
                0.0f,            0.0f,           0.0f,           1.0f;
 
-    // Final transform
-    M = M_vp * M_orth * P * M_cam * M_m;
+    // World transform
+    M_world = M_cam * M_m;
+
+    // "Viewport" transform
+    M = M_vp * M_orth * P;
 
     // Sphere
     Color ka(0.0f, 1.0f, 0.0f);
     Color kd(0.0f, 0.5f, 0.0f);
     Color ks(0.5f, 0.5f, 0.5f);
     Material mat(ka, kd, ks, 32);
-    Sphere sphere(mat, M);
+    Sphere sphere(mat, M_world);
 
     // Light
     Light light(Eigen::Vector3f(-4, 4, -3), 1);
@@ -199,7 +205,7 @@ int main(int argc, char* argv[]) {
 
     // Rasterize sphere
     for (auto& tri : sphere.triangles)
-        rasterize(tri, light, mat);
+        rasterize(tri, light, mat, M);
 
     #if defined(USE_OPENGL)
         // Write buffer to OpenGL window
