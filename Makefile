@@ -8,17 +8,17 @@ INC = -Iinclude
 
 GL_LFLAGS = -lGL -lGLU -lglut
 
-all: build-gl unshaded-gl flat-gl
+all: clean build-gl unshaded-gl flat-gl
 
-ppm: build unshaded flat
+ppm: clean build unshaded flat
 
 build-gl:
 	@echo "Building with OpenGL..."
-	@$(CPP_DEBUG) $(INC) main.cpp $(SRC) -o main $(GL_LFLAGS) -DUSE_OPENGL
+	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main $(GL_LFLAGS) -DUSE_OPENGL
 
 build:
 	@echo "Building..."
-	@$(CPP_DEBUG) $(INC) main.cpp $(SRC) -o main
+	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main
 
 unshaded:
 	@echo "Rendering Part 1 (Unshaded)..."
