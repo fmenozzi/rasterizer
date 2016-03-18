@@ -85,7 +85,7 @@ void draw(int x, int y, const Color& color) {
 
 template <typename T>
 T lerp(T a, T b, T c, float beta, float gamma) {
-    return a + (c-a)*beta + (b-a)*gamma;
+    return a + (b-a)*beta + (c-a)*gamma;
 }
 
 void rasterize(const Triangle& tri, const Light& light, const Material& mat, const Eigen::Matrix4f& M) {
