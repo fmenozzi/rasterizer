@@ -8,9 +8,9 @@ INC = -Iinclude
 
 GL_LFLAGS = -lGL -lGLU -lglut
 
-all: clean build-gl unshaded-gl flat-gl gouraud-gl phong-gl
+all: build-gl unshaded-gl flat-gl gouraud-gl phong-gl clean
 
-ppm: clean build unshaded flat gouraud phong
+ppm: build unshaded flat gouraud phong clean
 
 # Compilation
 build-gl:
