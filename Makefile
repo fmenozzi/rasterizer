@@ -8,20 +8,21 @@ INC = -Iinclude
 
 GL_LFLAGS = -lGL -lGLU -lglut
 
-all: build-gl unshaded-gl flat-gl gouraud-gl phong-gl clean
+all: gl
 
-ppm: build unshaded flat gouraud phong clean
+ppm: build-ppm unshaded-ppm flat-ppm gouraud-ppm phong-ppm clean
+gl: build-gl unshaded-gl flat-gl gouraud-gl phong-gl clean
 
 # Compilation
 build-gl:
 	@echo "Building with OpenGL..."
 	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main $(GL_LFLAGS) -DUSE_OPENGL
-build:
+build-ppm:
 	@echo "Building..."
 	@$(CPP_RELEASE) $(INC) main.cpp $(SRC) -o main
 
 # Part 1 (Unshaded)
-unshaded:
+unshaded-ppm:
 	@echo "Rendering Part 1 (Unshaded)..."
 	@./main --shading=NONE &
 	@echo "Done"
@@ -31,7 +32,7 @@ unshaded-gl:
 	@echo "Done"
 
 # Part 2 (Flat Shading)
-flat:
+flat-ppm:
 	@echo "Rendering Part 2 (Flat Shading)..."
 	@./main --shading=FLAT &
 	@echo "Done"
@@ -41,7 +42,7 @@ flat-gl:
 	@echo "Done"
 
 # Part 3 (Gouraud Shading)
-gouraud:
+gouraud-ppm:
 	@echo "Rendering Part 3 (Gouraud Shading)..."
 	@./main --shading=GOURAUD &
 	@echo "Done"
@@ -51,7 +52,7 @@ gouraud-gl:
 	@echo "Done"
 
 # Part 4 (Phong Shading)
-phong:
+phong-ppm:
 	@echo "Rendering Part 4 (Phong Shading)..."
 	@./main --shading=PHONG &
 	@echo "Done"

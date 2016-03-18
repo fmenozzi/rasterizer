@@ -3,9 +3,9 @@ COMP 770 - PA2
 
 This assignment has four parts, as described in pa2.pdf:
     * Rasterization
-    * Rasterization + Flat Shading
-    * Rasterization + Gouraud Shading
-    * Rasterization + Phong Shading
+    * Rasterization + Flat Shading (per triangle)
+    * Rasterization + Gouraud Shading (per vertex)
+    * Rasterization + Phong Shading (per pixel)
 
 I have provided a Makefile which can be used to build and render images either
 individually or all at once. Note that I have only tested this code with g++ 4.8
@@ -14,3 +14,28 @@ on Ubuntu 14.04.
 There are two ways to render the images:
     1. Using OpenGL and GLUT
     2. Writing .ppm files to disk
+
+If you have OpenGL and GLUT installed ("freeglut3-dev" and "freeglut3"
+libraries on Ubuntu 14.04), you can build the code with OpenGL enabled using
+"make build-gl" and then run the code separately for individual parts
+(e.g. "make unshaded-gl"). You can build and render all four images using
+OpenGL with "make gl" (running just "make" will also default to "make gl").
+
+If you don't have OpenGL and GLUT installed, you can still render the images
+as .ppm files written to disk. Build with .ppm support using "make build-ppm"
+and then render individual images (e.g. "make unshaded"). You can build and
+render all four images without OpenGL with "make ppm"
+
+If you go the non-GL route, there are no external dependencies for this
+project other than a C++11 compiler and the standard library.
+
+NOTE: I chose .ppm as my image format because it's the easiest format to write
+      to. However, it's possible that the default image viewer in Windows
+      can't open files of that type. I've included .png versions in the
+      "images/pngs" directory just in case, but keep in mind that the code
+      will still only produce .ppm files.
+
+NOTE: Sometimes when I run this with OpenGL, the buffer for one of the images
+      will be the current desktop background. If this happens, just run the
+      code again. If the problem persists for whatever reason, render the
+      images as .ppm files to disk instead.
