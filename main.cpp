@@ -103,15 +103,9 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
 
     BoundingBox bb = tri_vp.bounds();
 
-    float ax = a_vp[0];
-    float ay = a_vp[1];
-    float az = a_vp[2];
-    float bx = b_vp[0];
-    float by = b_vp[1];
-    float bz = b_vp[2];
-    float cx = c_vp[0];
-    float cy = c_vp[1];
-    float cz = c_vp[2];
+    float ax = a_vp[0], ay = a_vp[1], az = a_vp[2];
+    float bx = b_vp[0], by = b_vp[1], bz = b_vp[2];
+    float cx = c_vp[0], cy = c_vp[1], cz = c_vp[2];
 
     // Denominators
     float beta_denom  = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
