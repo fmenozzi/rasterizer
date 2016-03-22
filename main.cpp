@@ -105,10 +105,13 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
 
     float ax = a_vp[0];
     float ay = a_vp[1];
+    float az = a_vp[2];
     float bx = b_vp[0];
     float by = b_vp[1];
+    float bz = b_vp[2];
     float cx = c_vp[0];
     float cy = c_vp[1];
+    float cz = c_vp[2];
 
     // Denominators
     float beta_denom  = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
@@ -120,7 +123,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
             beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
             gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
 
-            float z = lerp(tri_vp.a[2], tri_vp.b[2], tri_vp.c[2], beta, gamma);
+            float z = lerp(az, bz, cz, beta, gamma);
 
             if (beta >= 0 && gamma >= 0 && beta + gamma <= 1 && z > zbuf[x][y]) {
                 zbuf[x][y] = z;
