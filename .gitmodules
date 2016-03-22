@@ -1,0 +1,3 @@
+[submodule "deps/arg-parser"]
+	path = deps/arg-parser
+	url = https://github.com/fmenozzi/arg-parser

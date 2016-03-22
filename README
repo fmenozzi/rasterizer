@@ -26,10 +26,10 @@ as .ppm files written to disk. Build with .ppm support using "make build-ppm"
 and then render individual images (e.g. "make unshaded"). You can build and
 render all four images without OpenGL with "make ppm"
 
-If you go the non-GL route, there are no external dependencies for this
+If you go the non-GL route, there are no additional dependencies for this
 project other than a C++11 compiler and the standard library. I use Eigen
-for linear algebra, but it is header-only and has been included for
-convenience.
+for linear algebra and a custom library for parsing commandline arguments,
+but those have been included for convenience.
 
 NOTE: I chose .ppm as my image format because it's the easiest format to write
       to. However, it's possible that the default image viewer in Windows
