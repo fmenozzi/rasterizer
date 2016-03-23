@@ -84,8 +84,8 @@ void draw(int x, int y, const Color& color) {
 }
 
 template <typename T>
-T lerp(T a, T b, T c, float beta, float gamma) {
-    return a + (b-a)*beta + (c-a)*gamma;
+T lerp(T a, T b, T c, float alpha, float beta) {
+    return (a-c)*alpha + (b-c)*beta + c;
 }
 
 void rasterize(const Triangle& tri, const Light& light, const Material& mat, const Eigen::Matrix4f& M) {
@@ -107,20 +107,26 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     float bx = b_vp[0], by = b_vp[1], bz = b_vp[2];
     float cx = c_vp[0], cy = c_vp[1], cz = c_vp[2];
 
-    // Denominators
-    float beta_denom  = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
-    float gamma_denom = (ay-by)*cx + (bx-ax)*cy + ax*by - bx*ay;
+    // Solve Ax=b for barycentric coordinates
+    Eigen::Matrix2f A;
+    A << (ax-cx), (bx-cx),
+         (ay-cy), (by-cy);
 
     // Step through viewport bounding box and check whether pixel is in triangle
-    float beta, gamma;
     for (int y = bb.ymin; y <= bb.ymax; y++) {
         for (int x = bb.xmin; x <= bb.xmax; x++) {
-            beta  = ((ay-cy)*x + (cx-ax)*y + ax*cy - cx*ay) / beta_denom;
-            gamma = ((ay-by)*x + (bx-ax)*y + ax*by - bx*ay) / gamma_denom;
+            Eigen::Vector2f b;
+            b[0] = x-cx;
+            b[1] = y-cy;
 
-            float z = lerp(az, bz, cz, beta, gamma);
+            Eigen::Vector2f res = A.lu().solve(b);
 
-            if (beta >= 0 && gamma >= 0 && beta + gamma <= 1 && z > zbuf[x][y]) {
+            float alpha = res[0];
+            float beta  = res[1];
+
+            float z = lerp(az, bz, cz, alpha, beta);
+
+            if (alpha >= 0 && beta >= 0 && alpha + beta <= 1 && z > zbuf[x][y]) {
                 zbuf[x][y] = z;
                 if (shade_mode == SHADEMODE::NONE) {
                     draw(x, y, Color::white());
@@ -132,11 +138,11 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
                     auto bc = tri.shade(tri.b, tri.bn, light, mat);
                     auto cc = tri.shade(tri.c, tri.cn, light, mat);
 
-                    draw(x, y, lerp(ac, bc, cc, beta, gamma));
+                    draw(x, y, lerp(ac, bc, cc, alpha, beta));
                 } else {
                     // Interpolate position and normal
-                    auto p = lerp(tri.a,  tri.b,  tri.c,  beta, gamma);
-                    auto n = lerp(tri.an, tri.bn, tri.cn, beta, gamma);
+                    auto p = lerp(tri.a,  tri.b,  tri.c,  alpha, beta);
+                    auto n = lerp(tri.an, tri.bn, tri.cn, alpha, beta);
 
                     draw(x, y, tri.shade(p, n, light, mat));
                 }
