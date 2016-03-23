@@ -99,10 +99,10 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     auto b_vp = vec4to3(M * Eigen::Vector4f(tri.b[0], tri.b[1], tri.b[2], 1.0f));
     auto c_vp = vec4to3(M * Eigen::Vector4f(tri.c[0], tri.c[1], tri.c[2], 1.0f));
 
-    Triangle tri_vp(a_vp, b_vp, c_vp);
+    // Viewport triangle bounds
+    BoundingBox bb = Triangle(a_vp, b_vp, c_vp).bounds();
 
-    BoundingBox bb = tri_vp.bounds();
-
+    // Viewport triangle vertex values
     float ax = a_vp[0], ay = a_vp[1], az = a_vp[2];
     float bx = b_vp[0], by = b_vp[1], bz = b_vp[2];
     float cx = c_vp[0], cy = c_vp[1], cz = c_vp[2];
@@ -111,6 +111,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     float beta_denom  = (ay-cy)*bx + (cx-ax)*by + ax*cy - cx*ay;
     float gamma_denom = (ay-by)*cx + (bx-ax)*cy + ax*by - bx*ay;
 
+    // Step through viewport bounding box and check whether pixel is in triangle
     float beta, gamma;
     for (int y = bb.ymin; y <= bb.ymax; y++) {
         for (int x = bb.xmin; x <= bb.xmax; x++) {
