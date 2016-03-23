@@ -107,7 +107,6 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     float bx = b_vp[0], by = b_vp[1], bz = b_vp[2];
     float cx = c_vp[0], cy = c_vp[1], cz = c_vp[2];
 
-    // Solve Ax=b for barycentric coordinates
     Eigen::Matrix2f A;
     A << (ax-cx), (bx-cx),
          (ay-cy), (by-cy);
@@ -115,11 +114,8 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     // Step through viewport bounding box and check whether pixel is in triangle
     for (int y = bb.ymin; y <= bb.ymax; y++) {
         for (int x = bb.xmin; x <= bb.xmax; x++) {
-            Eigen::Vector2f b;
-            b[0] = x-cx;
-            b[1] = y-cy;
-
-            Eigen::Vector2f res = A.lu().solve(b);
+            // Solve Ax=b for barycentric coordinates
+            Eigen::Vector2f res = A.lu().solve(Eigen::Vector2f(x-cx, y-cy));
 
             float alpha = res[0];
             float beta  = res[1];
@@ -129,8 +125,10 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
             if (alpha >= 0 && beta >= 0 && alpha + beta <= 1 && z > zbuf[x][y]) {
                 zbuf[x][y] = z;
                 if (shade_mode == SHADEMODE::NONE) {
+                    // White
                     draw(x, y, Color::white());
                 } else if (shade_mode == SHADEMODE::FLAT) {
+                    // Centroid color
                     draw(x, y, tri.shade(tri.centroid(), tri.n, light, mat));
                 } else if (shade_mode == SHADEMODE::GOURAUD) {
                     // Vertex colors
