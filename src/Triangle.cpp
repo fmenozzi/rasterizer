@@ -6,7 +6,7 @@ Color Triangle::shade(const Eigen::Vector3f& p, const Eigen::Vector3f& n, const 
     float Ia = 0.2f;
 
     // Calculate v, l, and h
-    Eigen::Vector3f v = (-p).normalized();
+    Eigen::Vector3f v = -p.normalized();
     Eigen::Vector3f l = (light.pos - p).normalized();
     Eigen::Vector3f h = (v+l).normalized();
 
