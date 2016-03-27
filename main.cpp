@@ -115,10 +115,10 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     for (int y = bb.ymin; y <= bb.ymax; y++) {
         for (int x = bb.xmin; x <= bb.xmax; x++) {
             // Solve Ax=b for barycentric coordinates
-            Eigen::Vector2f res = A.lu().solve(Eigen::Vector2f(x-cx, y-cy));
+            Eigen::Vector2f bary = A.lu().solve(Eigen::Vector2f(x-cx, y-cy));
 
-            float alpha = res[0];
-            float beta  = res[1];
+            float alpha = bary[0];
+            float beta  = bary[1];
 
             float z = lerp(az, bz, cz, alpha, beta);
 
