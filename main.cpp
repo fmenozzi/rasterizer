@@ -90,7 +90,7 @@ T lerp(T a, T b, T c, float alpha, float beta) {
 
 void rasterize(const Triangle& tri, const Light& light, const Material& mat, const Eigen::Matrix4f& M) {
     // Backface culling
-    Eigen::Vector3f v = tri.centroid().normalized();
+    auto v = tri.centroid().normalized();
     if (v.dot(tri.n) > 0)
         return;
 
@@ -100,7 +100,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     auto c_vp = vec4to3(M * Eigen::Vector4f(tri.c[0], tri.c[1], tri.c[2], 1.0f));
 
     // Viewport triangle bounds
-    BoundingBox bb = Triangle(a_vp, b_vp, c_vp).bounds();
+    auto bb = Triangle(a_vp, b_vp, c_vp).bounds();
 
     // Viewport triangle vertex values
     float ax = a_vp[0], ay = a_vp[1], az = a_vp[2];
