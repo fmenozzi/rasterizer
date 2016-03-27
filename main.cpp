@@ -100,7 +100,7 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
     auto c_vp = vec4to3(M * Eigen::Vector4f(tri.c[0], tri.c[1], tri.c[2], 1.0f));
 
     // Viewport triangle bounds
-    auto bb = Triangle(a_vp, b_vp, c_vp).bounds();
+    auto bounds = Triangle(a_vp, b_vp, c_vp).bounds();
 
     // Viewport triangle vertex values
     float ax = a_vp[0], ay = a_vp[1], az = a_vp[2];
@@ -112,8 +112,8 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
          (ay-cy), (by-cy);
 
     // Step through viewport bounding box and check whether pixel is in triangle
-    for (int y = bb.ymin; y <= bb.ymax; y++) {
-        for (int x = bb.xmin; x <= bb.xmax; x++) {
+    for (int y = bounds.ymin; y <= bounds.ymax; y++) {
+        for (int x = bounds.xmin; x <= bounds.xmax; x++) {
             // Solve Ax=b for barycentric coordinates
             Eigen::Vector2f bary = A.lu().solve(Eigen::Vector2f(x-cx, y-cy));
 
