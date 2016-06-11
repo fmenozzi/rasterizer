@@ -28,8 +28,9 @@ render all four images without OpenGL with "make ppm"
 
 If you go the non-GL route, there are no additional dependencies for this
 project other than a C++11 compiler and the standard library. I use Eigen
-for linear algebra and a custom library for parsing commandline arguments,
-but those have been included for convenience.
+for linear algebra, a custom library for parsing commandline arguments,
+and a custom library for writing to .ppm files, but those have been
+included for your convenience.
 
 NOTE: I chose .ppm as my image format because it's the easiest format to write
       to. However, it's possible that the default image viewer in Windows
