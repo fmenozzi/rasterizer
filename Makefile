@@ -3,8 +3,8 @@ CPP = g++ -std=c++11 -Wall -pedantic
 CPP_DEBUG = @$(CPP) -g
 CPP_RELEASE = @$(CPP) -O2 -march=native
 
-SRC = src/*.cpp deps/arg-parser/argparser.c deps/easyppm/easyppm.c
-INC = -Iinclude -Ideps -Ideps/arg-parser/ -Ideps/easyppm
+SRC = src/*.cpp deps/argparser/argparser.c deps/easyppm/easyppm.c
+INC = -Iinclude -Ideps -Ideps/argparser/ -Ideps/easyppm
 
 GL_LFLAGS = -lGL -lGLU -lglut
 

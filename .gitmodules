@@ -1,6 +1,6 @@
-[submodule "deps/arg-parser"]
-	path = deps/arg-parser
-	url = https://github.com/fmenozzi/arg-parser
 [submodule "deps/easyppm"]
 	path = deps/easyppm
 	url = https://github.com/fmenozzi/easyppm
+[submodule "deps/argparser"]
+	path = deps/argparser
+	url = https://github.com/fmenozzi/argparser
