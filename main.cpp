@@ -9,6 +9,7 @@
 #include <Eigen/Dense>
 
 #include <argparser.h>
+#include <easyppm.h>
 
 #include <Color.h>
 #include <Material.h>
@@ -29,6 +30,8 @@ constexpr int NY = 512;
 Color* buffer;
 float zbuf[NX][NY];
 
+PPM ppm;
+
 char shade_str[20];
 SHADEMODE shade_mode;
 void assign_shade_mode() {
@@ -47,40 +50,53 @@ void cleanup() {
 }
 
 #if defined(USE_OPENGL)
-    void gl_display() {
-        glClearColor(0,0,0,1);
-        glClear(GL_COLOR_BUFFER_BIT);
+void gl_display() {
+    glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        float* float_buffer = new float[3*NX*NY];
+    float* float_buffer = new float[3*NX*NY];
 
-        int k = 0;
-        for (int i = 0; i < NX; i++) {
-            for (int j = 0; j < NY; j++) {
-                float_buffer[k++] = buffer[j*NY + i].r;
-                float_buffer[k++] = buffer[j*NY + i].g;
-                float_buffer[k++] = buffer[j*NY + i].b;
-            }
-        }
-
-        glDrawPixels(NX, NY, GL_RGB, GL_FLOAT, float_buffer);
-
-        glutSwapBuffers();
-
-        delete[] float_buffer;
-    }
-
-    void gl_keyboard(unsigned char key, int x, int y) {
-        switch (key) {
-            // ESC
-            case 27:
-                cleanup();
-                exit(EXIT_SUCCESS);
+    int k = 0;
+    for (int i = 0; i < NX; i++) {
+        for (int j = 0; j < NY; j++) {
+            float_buffer[k++] = buffer[j*NY + i].r;
+            float_buffer[k++] = buffer[j*NY + i].g;
+            float_buffer[k++] = buffer[j*NY + i].b;
         }
     }
+
+    glDrawPixels(NX, NY, GL_RGB, GL_FLOAT, float_buffer);
+
+    glutSwapBuffers();
+
+    delete[] float_buffer;
+}
+
+void gl_keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        // ESC
+        case 27:
+            cleanup();
+            exit(EXIT_SUCCESS);
+    }
+}
 #endif
 
+int clamp(int x, int min, int max) {
+    return std::max(min, std::min(x, max));
+}
+
 void draw(int x, int y, const Color& color) {
+#if defined(USE_OPENGL)
     buffer[x*NY + y] = color.correct(2.2f);
+#else
+    auto c = color.correct(2.2f);
+
+    auto r = clamp(c.r * 255, 0, 255);
+    auto g = clamp(c.g * 255, 0, 255);
+    auto b = clamp(c.b * 255, 0, 255);
+    easyppm_set(&ppm, x, y, easyppm_rgb(r,g,b));
+#endif
 }
 
 template <typename T>
@@ -155,6 +171,10 @@ int main(int argc, char* argv[]) {
     argparser_add(&ap, "-s", "--shading", ARGTYPE_STRING, &shade_str, assign_shade_mode);
     argparser_parse(&ap);
 
+#ifndef USE_OPENGL
+    ppm = easyppm_create(NX, NY, IMAGETYPE_PPM);
+#endif
+
     constexpr float l = -0.1f;
     constexpr float r =  0.1f;
     constexpr float b = -0.1f;
@@ -225,42 +245,32 @@ int main(int argc, char* argv[]) {
     for (const auto& tri : sphere.triangles)
         rasterize(tri, light, mat, M);
 
-    #if defined(USE_OPENGL)
-        // Write buffer to OpenGL window
-        char window_name[50];
-        if      (shade_mode == SHADEMODE::NONE)    strcpy(window_name, "Part 1 (Unshaded)");
-        else if (shade_mode == SHADEMODE::FLAT)    strcpy(window_name, "Part 2 (Flat Shading)");
-        else if (shade_mode == SHADEMODE::GOURAUD) strcpy(window_name, "Part 3 (Gouraud Shading)");
-        else                                       strcpy(window_name, "Part 4 (Phong Shading)");
-        glutInit(&argc, argv);
-        glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-        glutInitWindowSize(NX, NY);
-        glutCreateWindow(window_name);
-        glutDisplayFunc(gl_display);
-        glutKeyboardFunc(gl_keyboard);
-        glutMainLoop();
-    #else
-        // Write buffer to image file
-        char ppmpath[50];
-        if      (shade_mode == SHADEMODE::NONE)    strcpy(ppmpath, "images/part1-unshaded.ppm");
-        else if (shade_mode == SHADEMODE::FLAT)    strcpy(ppmpath, "images/part2-flat.ppm");
-        else if (shade_mode == SHADEMODE::GOURAUD) strcpy(ppmpath, "images/part3-gouraud.ppm");
-        else                                       strcpy(ppmpath, "images/part4-phong.ppm");
-        FILE* fp = fopen(ppmpath, "w");
-        fprintf(fp, "P3\n");
-        fprintf(fp, "%d %d %d\n", NX, NY, 255);
-        for (int i = NX-1; i >= 0; i--) {
-            for (int j = 0; j < NY; j++) {
-                // Convert float RGB to int RGB
-                int ir = (int)(buffer[j*NY + i].r * 255);
-                int ig = (int)(buffer[j*NY + i].g * 255);
-                int ib = (int)(buffer[j*NY + i].b * 255);
+#if defined(USE_OPENGL)
+    // Write buffer to OpenGL window
+    char window_name[50];
+    if      (shade_mode == SHADEMODE::NONE)    strcpy(window_name, "Part 1 (Unshaded)");
+    else if (shade_mode == SHADEMODE::FLAT)    strcpy(window_name, "Part 2 (Flat Shading)");
+    else if (shade_mode == SHADEMODE::GOURAUD) strcpy(window_name, "Part 3 (Gouraud Shading)");
+    else                                       strcpy(window_name, "Part 4 (Phong Shading)");
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitWindowSize(NX, NY);
+    glutCreateWindow(window_name);
+    glutDisplayFunc(gl_display);
+    glutKeyboardFunc(gl_keyboard);
+    glutMainLoop();
+#else
+    // Write buffer to image file
+    char ppmpath[50];
+    if      (shade_mode == SHADEMODE::NONE)    strcpy(ppmpath, "images/part1-unshaded.ppm");
+    else if (shade_mode == SHADEMODE::FLAT)    strcpy(ppmpath, "images/part2-flat.ppm");
+    else if (shade_mode == SHADEMODE::GOURAUD) strcpy(ppmpath, "images/part3-gouraud.ppm");
+    else                                       strcpy(ppmpath, "images/part4-phong.ppm");
 
-                fprintf(fp, "%d %d %d\n", ir, ig, ib);
-            }
-        }
-        fclose(fp);
-    #endif
+    easyppm_invert_y(&ppm);
+    easyppm_write(&ppm, ppmpath);
+    easyppm_destroy(&ppm);
+#endif
 
     cleanup();
 
