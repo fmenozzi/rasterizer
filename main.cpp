@@ -168,8 +168,10 @@ void rasterize(const Triangle& tri, const Light& light, const Material& mat, con
 int main(int argc, char* argv[]) {
     // Parse system arguments
     argparser ap = argparser_create(argc, argv, PARSEMODE_LENIENT);
-    argparser_add(&ap, "-s", "--shading", ARGTYPE_STRING, &shade_str, assign_shade_mode);
+    argparser_add(&ap, "-s", "--shading", ARGTYPE_STRING, &shade_str, "Shade mode");
     argparser_parse(&ap);
+
+    assign_shade_mode();
 
 #ifndef USE_OPENGL
     ppm = easyppm_create(NX, NY, IMAGETYPE_PPM);
